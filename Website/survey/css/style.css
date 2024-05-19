@@ -1,0 +1,12 @@
+body {
+    margin: 2%;
+}
+
+:root {
+    --animate-duration: 500ms;
+}
+
+.fa {
+    color: #0078e7;
+    cursor: pointer;
+}
