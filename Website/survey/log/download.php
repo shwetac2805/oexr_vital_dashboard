@@ -21,7 +21,7 @@
     }
 
     # Load database credentials and attempt connection
-    include("/home/dgoldberg/_select_ai_logs_credentials.php"); # Instantiates $select_log_conn for data selection
+    include("../_select_ai_logs_credentials.php"); # Instantiates $select_log_conn for data selection
 
     # Check if the connection was successful
     if (!$select_log_conn) {

@@ -8,8 +8,8 @@
         }
     
         # Load database credentials and attempt connection
-        include("/home/dgoldberg/_select_ai_data_credentials.php"); # Instantiates $select_conn for data selection
-        include("/home/dgoldberg/_insert_ai_logs_credentials.php"); # Instantiates $insert_conn for logging
+        include("_select_ai_data_credentials.php"); # Instantiates $select_conn for data selection
+        include("_insert_ai_logs_credentials.php"); # Instantiates $insert_conn for logging
     
         # End execution if the connection was unsuccessful
         if ((!$select_conn) or (!$insert_conn)) {
@@ -40,7 +40,7 @@
         }
         
         # Reload database credentials and attempt connection - required due to MySQL stored procedure buffering behavior
-        include("/home/dgoldberg/_select_ai_data_credentials.php"); # Reinstantiates $select_conn for data selection
+        include("_select_ai_data_credentials.php"); # Reinstantiates $select_conn for data selection
         
         # Reconcile age selection
         if (isset($_SESSION["age"])) {
