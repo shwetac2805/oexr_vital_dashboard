@@ -24,7 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-        google.charts.load('current', {packages: ['corechart']});
+        google.charts.load('current', {packages: ['corechart', 'bar']});
 
         function drawChart() {
             const selectedQuestion = document.getElementById('question-selector').value;
@@ -51,7 +51,7 @@
                             'Authorship recognition and copyright management',
                             'Ability to categorize and tag on multiple criteria (e.g. discipline, media type)'
                         ];
-                    }  else if (selectedQuestion === 'What subscription model do you think would be most sustainable for the OEXR library') {
+                    } else if (selectedQuestion === 'What subscription model do you think would be most sustainable for the OEXR library') {
                         subQuestions = [
                             'Completely free for all users',
                             'Free use, subsidized by for-profit organizations',
@@ -60,40 +60,47 @@
                         ];
                     }
 
-                    const totalResponses = data[0].total_responses;
+                    const totalResponses = data.reduce((sum, row) => sum + parseInt(row.total_responses, 10), 0);
+                    const mostImportant = data.map(row => (parseInt(row.max, 10) / totalResponses) * 100);
+                    const leastImportant = data.map(row => (parseInt(row.min, 10) / totalResponses) * 100);
 
-                    const mostImportant = subQuestions.map((_, i) => {
-                        const count = data[i].max;
-                        const percentage = totalResponses ? (count / totalResponses) * 100 : 0;
-                        return percentage.toFixed(2);
-                    });
+                    var chartData = new google.visualization.DataTable();
+                    chartData.addColumn('string', 'Sub-Question');
+                    chartData.addColumn('number', 'Most Important');
+                    chartData.addColumn({type: 'string', role: 'annotation'});
+                    chartData.addColumn('number', 'Least Important');
+                    chartData.addColumn({type: 'string', role: 'annotation'});
 
-                    const leastImportant = subQuestions.map((_, i) => {
-                        const count = data[i].min;
-                        const percentage = totalResponses ? (count / totalResponses) * 100 : 0;
-                        return percentage.toFixed(2);
-                    });
+                    for (let i = 0; i < subQuestions.length; i++) {
+                        chartData.addRow([subQuestions[i], mostImportant[i], mostImportant[i].toFixed(2) + '%', leastImportant[i], leastImportant[i].toFixed(2) + '%']);
+                    }
 
-                    var chartData = google.visualization.arrayToDataTable([
-                        ['Sub-Question', 'Most Important', 'Least Important'],
-                        ...subQuestions.map((sq, i) => [sq, parseFloat(mostImportant[i]), parseFloat(leastImportant[i])])
-                    ]);
-
-                    var chart = new google.visualization.ColumnChart(document.getElementById('chart_area'));
-                    chart.draw(chartData, {
+                    var options = {
                         height: 400,
                         width: width * 0.8,
                         legend: 'top',
-                        hAxis: { title: 'Sub-Question' },
-                        vAxis: { title: 'Percent of Responses' },
-                        colors: ['#0078e7', '#e76f00']
-                    });
+                        hAxis: { title: 'Percent of Responses' },
+                        vAxis: { title: 'Sub-Question' },
+                        bar: { groupWidth: '75%' },
+                        isStacked: true,
+                        colors: ['#0078e7', '#e76f00'],
+                        annotations: {
+                            alwaysOutside: true,
+                            textStyle: {
+                                fontSize: 12,
+                                auraColor: 'none'
+                            }
+                        }
+                    };
+
+                    var chart = new google.visualization.BarChart(document.getElementById('chart_area'));
+                    chart.draw(chartData, options);
 
                     const tbody = document.getElementById('survey-body');
                     tbody.innerHTML = '';
                     subQuestions.forEach((subQuestion, index) => {
                         const row = document.createElement('tr');
-                        row.innerHTML = `<td>${subQuestion}</td><td>${mostImportant[index]}%</td><td>${leastImportant[index]}%</td>`;
+                        row.innerHTML = `<td>${subQuestion}</td><td>${mostImportant[index].toFixed(2)}%</td><td>${leastImportant[index].toFixed(2)}%</td>`;
                         tbody.appendChild(row);
                     });
                 })
