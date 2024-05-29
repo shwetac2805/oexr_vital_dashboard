@@ -25,12 +25,6 @@ function reset(form) {
         document.getElementById("time_basis").value = "%";
         document.getElementById("campus").value = "%";
         submitForm("tlform1");
-    } else if (form == "background") {
-        document.getElementById("age").value = "0";
-        document.getElementById("residency").value = "%";
-        document.getElementById("living").value = "%";
-        document.getElementById("smart_devices").value = "%";
-        submitForm("tlform1");
     }
 }
 

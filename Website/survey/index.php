@@ -41,49 +41,12 @@
         
         # Reload database credentials and attempt connection - required due to MySQL stored procedure buffering behavior
         include("_select_ai_data_credentials.php"); # Reinstantiates $select_conn for data selection
-        
-        # Reconcile age selection
-        if (isset($_SESSION["age"])) {
-            if ($_SESSION["age"] == "1") {
-                $age_min = 0;
-                $age_max = 19;
-                $age_str = "age <= 19";
-            } elseif ($_POST["age"] == "2") {
-                $age_min = 20;
-                $age_max = 29;
-                $age_str = "age between 20 and 29";
-            } elseif ($_POST["age"] == "3") {
-                $age_min = 30;
-                $age_max = 39;
-                $age_str = "age between 30 and 39";
-            } elseif ($_POST["age"] == "4") {
-                $age_min = 40;
-                $age_max = 999;
-                $age_str = "age >= 40";
-            } else {
-                $age_min = 0;
-                $age_max = 999;
-                $age_str = "";
-            }
-            
-            # Filtered SQL query
-            $sql_filtered = "CALL filtered_{$question}('{$_SESSION['level_']}', '{$_SESSION['year_']}', '{$_SESSION['college']}', '{$_SESSION['residency']}', '{$_SESSION['time_basis']}', '{$_SESSION['campus']}', '{$_SESSION['living']}', {$age_min}, {$age_max}, '{$_SESSION['smart_devices']}');";
-            $result1 = mysqli_query($select_conn, $sql_filtered);
-            $data1 = [];
-            $count1 = 0;
-            while ($row = $result1->fetch_assoc()) {
-                $data1[] = $row;
-                $count1 += $row["count"];
-            }
-        
-        } else {
-            $age_str = ""; # Still used for logging
-        }
+    
         
         # Insert log
         $now = date('Y-m-d H:i:s');
         $user_id = $_COOKIE["user_id"];
-        $sql_logging = "CALL user_interaction('{$question}', '{$_SESSION['level_']}', '{$_SESSION['year_']}', '{$_SESSION['college']}', '{$_SESSION['residency']}', '{$_SESSION['time_basis']}', '{$_SESSION['campus']}', '{$_SESSION['living']}', '{$age_str}', '{$_SESSION['smart_devices']}', '{$_SERVER['REMOTE_ADDR']}', '{$now}', '{$user_id}');";
+        $sql_logging = "CALL user_interaction('{$question}', '{$_SESSION['level_']}', '{$_SESSION['year_']}', '{$_SESSION['college']}', '{$_SESSION['time_basis']}', '{$_SESSION['campus']}', '{$_SESSION['living']}', '{$age_str}', '{$_SESSION['smart_devices']}', '{$_SERVER['REMOTE_ADDR']}', '{$now}', '{$user_id}');";
         $sql_logging = str_replace("'%'", "''", $sql_logging);
         $result2 = mysqli_query($insert_conn, $sql_logging);
         
@@ -176,8 +139,8 @@
             <fieldset>
                 <legend style = "font-size: 20px"><strong>Survey question</strong></legend>
                     <select name = "question" id = "question" onchange = "submitForm('tlform')">
-                        <option value = "too_complex" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "too_complex") { echo("selected"); } } ?>>AI technology is too complex for me to grasp</option>
-                        <option value = "follow_news" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "follow_news") { echo("selected"); } } ?>>I regularly follow news and updates about AI</option>
+                        <option value = "org" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "org") { echo("selected"); } } ?>>Instituion or organization</option>
+                        <option value = "represented" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "represented") { echo("selected"); } } ?>>What type of institutions are represented</option>
                         <option value = "regularly_discuss" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "regularly_discuss") { echo("selected"); } } ?>>I regularly discuss AI topics with friends, family, or classmates</option>
                         <option value = "attend_workshops" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "attend_workshops") { echo("selected"); } } ?>>I have attended workshops or seminars on AI</option>
                         <option value = "seen_opportunities" <?php if(isset($_SESSION["question"])) { if($_SESSION["question"] == "seen_opportunities") { echo("selected"); } } ?>>I have seen opportunities to learn more about AI around the SDSU campus</option>
@@ -255,7 +218,7 @@
         </table>
         <br />
         
-        <form method = "post" id = "tlform1" class = "pure-form pure-form-stacked">
+        <!-- <form method = "post" id = "tlform1" class = "pure-form pure-form-stacked">
             <fieldset>
                 <legend style = "font-size: 20px"><strong>Educational status filters&nbsp;<i class = "fa fa-rotate-left" style = "font-size: 20px;" onclick = "reset('education');"></i></strong></legend>
                 <div class = "pure-g">
@@ -313,52 +276,11 @@
                     </div>
                 </div>
                 <br />
-                
-                <legend style = "font-size: 20px"><strong>Background filters&nbsp;<i class = "fa fa-rotate-left" style = "font-size: 20px;" onclick = "reset('background');"></i></strong></legend>
-                <div class = "pure-g">
-                    <div class = "pure-u-1 pure-u-md-1-5">
-                        <label for = "age">Age</label>
-                        <select name = "age" id = "age" class = "pure-u-23-24" onchange = "submitForm('tlform1')">
-                            <option value = "0">--</option>
-                            <option value = "1" <?php if(isset($_SESSION["age"])) { if($_SESSION["age"] == "1") { echo("selected"); } } ?>>19 or younger</option>
-                            <option value = "2" <?php if(isset($_SESSION["age"])) { if($_SESSION["age"] == "2") { echo("selected"); } } ?>>20-29</option>
-                            <option value = "3" <?php if(isset($_SESSION["age"])) { if($_SESSION["age"] == "3") { echo("selected"); } } ?>>30-39</option>
-                            <option value = "4" <?php if(isset($_SESSION["age"])) { if($_SESSION["age"] == "4") { echo("selected"); } } ?>>40 or older</option>
-                        </select>
-                    </div>
-                    <div class = "pure-u-1 pure-u-md-1-5">
-                        <label for = "residency">Residency</label>
-                        <select name = "residency" id = "residency" class = "pure-u-23-24" onchange = "submitForm('tlform1')">
-                            <option value = "%">--</option>
-                            <option value = "California resident" <?php if(isset($_SESSION["residency"])) { if($_SESSION["residency"] == "California resident") { echo("selected"); } } ?>>California resident</option>
-                            <option value = "Out-of-state" <?php if(isset($_SESSION["residency"])) { if($_SESSION["residency"] == "Out-of-state") { echo("selected"); } } ?>>Out-of-state</option>
-                            <option value = "International" <?php if(isset($_SESSION["residency"])) { if($_SESSION["residency"] == "International") { echo("selected"); } } ?>>International</option>
-                        </select>
-                    </div>
-                    <div class = "pure-u-1 pure-u-md-1-5">
-                        <label for = "living">Living situation</label>
-                        <select name = "living" id = "living" class = "pure-u-23-24" onchange = "submitForm('tlform1')">
-                            <option value = "%">--</option>
-                            <option value = "On-campus" <?php if(isset($_SESSION["living"])) { if($_SESSION["living"] == "On-campus") { echo("selected"); } } ?>>On-campus</option>
-                            <option value = "Off-campus" <?php if(isset($_SESSION["living"])) { if($_SESSION["living"] == "Off-campus") { echo("selected"); } } ?>>Off-campus</option>
-                        </select>
-                    </div>
-                    <div class = "pure-u-1 pure-u-md-1-5">
-                        <label for = "smart_devices">Smart devices owned</label>
-                        <select name = "smart_devices" id = "smart_devices" class = "pure-u-23-24" onchange = "submitForm('tlform1')">
-                            <option value = "%">--</option>
-                            <option value = "0" <?php if(isset($_SESSION["smart_devices"])) { if($_SESSION["smart_devices"] == "0") { echo("selected"); } } ?>>0</option>
-                            <option value = "1" <?php if(isset($_SESSION["smart_devices"])) { if($_SESSION["smart_devices"] == "1") { echo("selected"); } } ?>>1</option>
-                            <option value = "2" <?php if(isset($_SESSION["smart_devices"])) { if($_SESSION["smart_devices"] == "2") { echo("selected"); } } ?>>2</option>
-                            <option value = "3" <?php if(isset($_SESSION["smart_devices"])) { if($_SESSION["smart_devices"] == "3") { echo("selected"); } } ?>>3</option>
-                            <option value = "4+" <?php if(isset($_SESSION["smart_devices"])) { if($_SESSION["smart_devices"] == "4+") { echo("selected"); } } ?>>4+</option>
-                        </select>
-                    </div>
-                </div>
             </fieldset>
         </form>
-        
-        <h3 <?php if (($data == $data1) or is_null($data1)) { echo('style = "display:none"'); } ?>>Survey results for filtered students</h3>
+         -->
+
+        <!-- <h3 <?php if (($data == $data1) or is_null($data1)) { echo('style = "display:none"'); } ?>>Survey results for filtered students</h3>
         <table <?php if (($data == $data1) or is_null($data1)) { echo('style = "display:none"'); } ?>>
             <tr>
                 <td style = "width:50%">
@@ -388,6 +310,6 @@
                 </td>
                 <td style = "width:50%" id = "chart_area1"></td>
             </tr>
-        </table>
+        </table> -->
     </body>
 </html>

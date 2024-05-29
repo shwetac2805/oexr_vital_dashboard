@@ -12,9 +12,8 @@ select {column} as question, count({column}) as count
 from survey
 where {column} > 0
 and level_ LIKE _level_ and year_ LIKE _year_ and college LIKE _college
-and residency LIKE _residency and time_basis LIKE _time_basis and
-campus LIKE _campus and living LIKE _living
-and (age between age_min and age_max) and smart_devices LIKE _smart_devices
+and time_basis LIKE _time_basis and
+campus LIKE _campus
 group by {column}
 order by {column} asc;
 

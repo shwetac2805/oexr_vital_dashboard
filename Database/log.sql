@@ -23,10 +23,6 @@ CREATE TABLE `log` (
   `college` varchar(100) DEFAULT NULL,
   `time_basis` varchar(100) DEFAULT NULL,
   `campus` varchar(100) DEFAULT NULL,
-  `age` varchar(100) DEFAULT NULL,
-  `residency` varchar(100) DEFAULT NULL,
-  `living` varchar(100) DEFAULT NULL,
-  `smart_devices` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`request_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

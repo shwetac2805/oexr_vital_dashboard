@@ -42,7 +42,7 @@
         $sql = "CALL queries_log();";
         $result = mysqli_query($select_log_conn, $sql);
         while ($row = $result->fetch_assoc()) {
-            fputcsv($file, array($row["request_id"], $row["request_time"], $row["user_id"], $row["name"], $row["email"], $row["institution"], $row["role"], $row["interest"], $row["ip_address"], $row["question"], $row["level_"], $row["year_"], $row["college"], $row["time_basis"], $row["campus"], $row["age"], $row["residency"], $row["living"], $row["smart_devices"]), ","); 
+            fputcsv($file, array($row["request_id"], $row["request_time"], $row["user_id"], $row["name"], $row["email"], $row["institution"], $row["role"], $row["interest"], $row["ip_address"], $row["question"], $row["level_"], $row["year_"], $row["college"], $row["time_basis"], $row["campus"]), ","); 
         }
     } elseif ($option === "users") {
         $filename = "SDSU AI Student Survey Dashboard User Log {$date}.csv"; 
